@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "siteconsulta-8c871",
     "public": "public",
     "ignore": [
       "firebase.json",
