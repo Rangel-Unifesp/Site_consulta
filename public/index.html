@@ -104,19 +104,22 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // IMPORTANTE: Substitua pelos valores do SEU projeto Firebase
+        // 🚨 IMPORTANTE: VERIFIQUE E SUBSTITUA PELOS VALORES CORRETOS DO SEU PROJETO FIREBASE 🚨
         const firebaseConfig = {
-            apiKey: "AIzaSyB6c5lJimTVpxC03an7wYujFBgeRd2sInE", // CONFIRME SE ESTA É A SUA API KEY CORRETA
-            authDomain: "siteconsulta-8c871.firebaseapp.com", // CONFIRME SE ESTE É O SEU AUTH DOMAIN
-            projectId: "siteconsulta-8c871",                 // CONFIRME SE ESTE É O SEU PROJECT ID
-            storageBucket: "siteconsulta-8c871.appspot.com", // CONFIRME O NOME DO SEU STORAGE BUCKET
-            messagingSenderId: "142207316040",           // CONFIRME SE ESTE É O SEU MESSAGING SENDER ID
-            appId: "1:142207316040:web:3d4eecd9b1c9da999b287d", // CONFIRME SE ESTE É O SEU APP ID WEB
-            measurementId: "G-X6H44XPL2G"                 // CONFIRME SE ESTE É O SEU MEASUREMENT ID (opcional, mas se tiver, coloque)
+            apiKey: "AIzaSyB6c5lJimTVpxC03an7wYujFBgeRd2sInE", // CONFIRME ESTA É A SUA API KEY
+            authDomain: "siteconsulta-8c871.firebaseapp.com", // CONFIRME ESTE É O SEU AUTH DOMAIN
+            projectId: "siteconsulta-8c871",                 // CONFIRME ESTE É O SEU PROJECT ID
+            storageBucket: "siteconsulta-8c871.appspot.com", // CONFIRME O NOME DO SEU STORAGE BUCKET (geralmente .appspot.com)
+            messagingSenderId: "142207316040",           // CONFIRME ESTE É O SEU MESSAGING SENDER ID
+            appId: "1:142207316040:web:3d4eecd9b1c9da999b287d", // CONFIRME ESTE É O SEU APP ID (formato web)
+            measurementId: "G-X6H44XPL2G"                 // CONFIRME ESTE É O SEU MEASUREMENT ID (opcional)
         };
+        // ========================================================================================
+
         const firebaseApp = initializeApp(firebaseConfig); // Inicializa o app Firebase UMA VEZ
         
-        // Este é o ID usado no caminho do Firestore. Garanta que suas regras do Firestore usem este mesmo ID.
+        // Este é o ID usado no caminho do Firestore. 
+        // Garanta que suas regras do Firestore usem este mesmo ID se __app_id não for injetado.
         const firestorePathAppId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id-guia-medico';
 
         const auth = getAuth(firebaseApp);
@@ -244,15 +247,14 @@
         ];
         
         function showSavedFeedback(element) {
-            // Tenta encontrar o elemento de feedback mais próximo subindo na árvore a partir do elemento alvo do evento
-            let targetElementForFeedback = element;
+            let feedbackContainer = element.closest('li'); // Padrão é procurar no <li>
             if (element.type === 'checkbox') {
-                targetElementForFeedback = element.closest('.item-div');
+                 feedbackContainer = element.closest('.item-div');
             } else if (element.tagName === 'TEXTAREA') {
-                targetElementForFeedback = element.closest('.note-area');
+                 feedbackContainer = element.closest('.note-area');
             }
-
-            const feedbackEl = targetElementForFeedback ? targetElementForFeedback.querySelector('.saved-feedback') : null;
+            
+            const feedbackEl = feedbackContainer ? feedbackContainer.querySelector('.saved-feedback') : null;
             
             if (feedbackEl) {
                 feedbackEl.classList.add('show');
@@ -264,9 +266,8 @@
 
         async function saveData(itemId, type, value, eventTargetElement = null) {
             if (!userId || !guideDataRef) {
-                console.warn("Usuário não autenticado ou referência do Firestore não está pronta. Não é possível salvar.");
+                console.warn("Usuário não autenticado ou referência do Firestore não está pronta. Não é possível salvar dados.");
                 authStatusEl.textContent = "Não autenticado. Faça login para salvar os dados.";
-                // Não mostra feedback de "salvo" se não conseguiu salvar
                 return;
             }
 
@@ -282,11 +283,12 @@
                 }
             } catch (error) {
                 console.error(`Erro ao guardar dados no Firestore para ${key}:`, error);
-                authStatusEl.textContent = `Erro ao guardar dados: ${error.message}. Verifique o console para detalhes.`;
+                authStatusEl.textContent = `Erro ao guardar dados: ${error.message}. Verifique o console.`;
             }
         }
 
         function loadAndApplyData(data) {
+            console.log("Tentando aplicar dados da UI:", data);
             localGuideData = data || {};
             sectionsData.forEach(section => {
                 section.content.forEach(contentItem => {
@@ -306,6 +308,7 @@
                                 if(noteTextArea.value.trim() !== "") {
                                     noteAreaDiv.classList.remove('hidden');
                                 } else {
+                                    // Mantém escondido se não houver anotação, para não abrir todas as caixas de nota vazias ao carregar
                                     noteAreaDiv.classList.add('hidden');
                                 }
                             }
@@ -320,28 +323,13 @@
             const provider = new GoogleAuthProvider();
             try {
                 authStatusEl.textContent = "A tentar login com Google...";
+                console.log("Iniciando signInWithPopup com Google...");
                 await signInWithPopup(auth, provider);
                 // onAuthStateChanged lidará com a atualização da UI e carregamento de dados
             } catch (error) {
                 console.error("Erro no login com Google:", error);
-                authStatusEl.textContent = `Falha no login com Google: ${error.message}. Tente novamente ou verifique o console.`;
-                // Se o popup foi fechado pelo usuário, não tentar login anônimo imediatamente
-                if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-                   // Se não foi cancelamento do usuário, talvez tentar anônimo como fallback se desejado
-                   // await attemptAnonymousSignIn(); // Removido para priorizar escolha do usuário
-                }
+                authStatusEl.textContent = `Falha no login com Google: ${error.message}. Tente novamente.`;
             }
-        }
-
-        async function attemptAnonymousSignIn() {
-             if (auth.currentUser) return; 
-             try {
-                authStatusEl.textContent = "A tentar login anônimo...";
-                await signInAnonymously(auth);
-             } catch(error) {
-                console.error("Erro no login anônimo:", error);
-                authStatusEl.textContent = `Falha no login anônimo: ${error.message}.`;
-             }
         }
 
         async function setupAuthAndListeners() {
@@ -361,10 +349,10 @@
                     }
                     unsubscribeFirestore = onSnapshot(guideDataRef, (docSnap) => {
                         if (docSnap.exists()) {
-                            console.log("Dados recebidos do Firestore:", docSnap.data());
+                            console.log("Dados recebidos do Firestore (onSnapshot):", docSnap.data());
                             loadAndApplyData(docSnap.data());
                         } else {
-                            console.log("Nenhum dado existente para este usuário no Firestore. Carregando interface vazia.");
+                            console.log("Nenhum documento existente para este usuário no Firestore (onSnapshot). Carregando UI vazia e criando documento se necessário ao salvar.");
                             loadAndApplyData({}); 
                         }
                     }, (error) => {
@@ -372,7 +360,7 @@
                         authStatusEl.textContent = "Erro ao carregar dados do Firestore. Verifique o console.";
                     });
 
-                } else { // Usuário não está logado
+                } else { 
                     authStatusEl.textContent = "Por favor, faça login com Google para salvar e carregar seus dados.";
                     userId = null;
                     guideDataRef = null;
@@ -383,11 +371,21 @@
                         unsubscribeFirestore();
                         unsubscribeFirestore = null;
                     }
-                    loadAndApplyData({}); // Limpa a UI
+                    loadAndApplyData({}); 
                     
-                    // Não tentar login anônimo automaticamente aqui para dar preferência ao botão do Google.
-                    // O usuário pode escolher clicar no botão do Google.
-                    // Se quisesse login anônimo automático como fallback ao iniciar sem usuário, chamaria attemptAnonymousSignIn() aqui.
+                    // Tentativa de login anônimo como fallback se nenhum usuário estiver logado
+                    // Isso pode ser útil se você quiser que os dados sejam salvos mesmo sem login com Google,
+                    // mas eles ficarão vinculados a uma conta anônima.
+                    // Se quiser priorizar o login explícito com Google, mantenha comentado.
+                    /*
+                    try {
+                        console.log("Nenhum usuário logado. Tentando login anônimo...");
+                        await signInAnonymously(auth);
+                    } catch (error) {
+                        console.error("Erro no login anônimo de fallback:", error);
+                        authStatusEl.textContent = "Falha no login anônimo automático. Tente o login com Google.";
+                    }
+                    */
                 }
             });
         }
@@ -396,8 +394,8 @@
         logoutButton.addEventListener('click', async () => {
             try {
                 await signOut(auth);
-                // onAuthStateChanged vai lidar com a limpeza da UI e atualização do status.
                 console.log("Logout realizado.");
+                // onAuthStateChanged cuidará da limpeza da UI e atualização do status
             } catch (error) {
                 console.error("Erro no logout:", error);
             }
@@ -408,7 +406,7 @@
             const sectionsContainerEl = document.getElementById('sections-container');
             document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-            setupAuthAndListeners(); // Configura ouvintes de autenticação e carrega dados se já logado.
+            setupAuthAndListeners(); 
             
             sectionsData.forEach((section, index) => {
                 const tabButton = document.createElement('button');
