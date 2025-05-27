@@ -55,7 +55,6 @@
         .saved-feedback.show {
             opacity: 1;
         }
-        /* Esconder elementos por padrão se necessário */
         .hidden {
             display: none;
         }
@@ -105,24 +104,24 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // IMPORTANTE: Substitua pelos valores do SEU projeto Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyB6c5lJimTVpxC03an7wYujFBgeRd2sInE", // SUBSTITUA PELO SEU apiKey
-            authDomain: "siteconsulta-8c871.firebaseapp.com", // SUBSTITUA PELO SEU authDomain
-            projectId: "siteconsulta-8c871",                 // SUBSTITUA PELO SEU projectId
-            storageBucket: "siteconsulta-8c871.appspot.com", // Nota: .appspot.com é mais comum aqui
-            messagingSenderId: "142207316040",           // SUBSTITUA PELO SEU messagingSenderId
-            appId: "1:142207316040:web:3d4eecd9b1c9da999b287d",           // SUBSTITUA PELO SEU appId (formato web)
-            measurementId: "G-X6H44XPL2G"                 // SUBSTITUA PELO SEU measurementId (opcional)
+            apiKey: "AIzaSyB6c5lJimTVpxC03an7wYujFBgeRd2sInE", // CONFIRME SE ESTA É A SUA API KEY CORRETA
+            authDomain: "siteconsulta-8c871.firebaseapp.com", // CONFIRME SE ESTE É O SEU AUTH DOMAIN
+            projectId: "siteconsulta-8c871",                 // CONFIRME SE ESTE É O SEU PROJECT ID
+            storageBucket: "siteconsulta-8c871.appspot.com", // CONFIRME O NOME DO SEU STORAGE BUCKET
+            messagingSenderId: "142207316040",           // CONFIRME SE ESTE É O SEU MESSAGING SENDER ID
+            appId: "1:142207316040:web:3d4eecd9b1c9da999b287d", // CONFIRME SE ESTE É O SEU APP ID WEB
+            measurementId: "G-X6H44XPL2G"                 // CONFIRME SE ESTE É O SEU MEASUREMENT ID (opcional, mas se tiver, coloque)
         };
-        const firebaseApp = initializeApp(firebaseConfig);
+        const firebaseApp = initializeApp(firebaseConfig); // Inicializa o app Firebase UMA VEZ
         
-        // Este appId é para o caminho no Firestore, pode ser diferente do appId da config acima.
-        // Mantendo como 'default-app-id-guia-medico' se __app_id não for injetado pelo ambiente.
+        // Este é o ID usado no caminho do Firestore. Garanta que suas regras do Firestore usem este mesmo ID.
         const firestorePathAppId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id-guia-medico';
 
         const auth = getAuth(firebaseApp);
         const db = getFirestore(firebaseApp);
-        // setLogLevel('debug'); 
+        // setLogLevel('debug'); // Descomente para logs detalhados do Firestore durante o desenvolvimento
 
         let userId = null;
         let guideDataRef = null;
@@ -133,8 +132,9 @@
         const userIdDisplayEl = document.getElementById('user-id-display');
         const loginButton = document.getElementById('login-google-button');
         const logoutButton = document.getElementById('logout-button');
+        
         const sectionsData = [
-             {
+            {
                 id: "sintomas-agudos",
                 tabName: "Sintomas Agudos",
                 title: "I. Avaliação dos Sintomas Agudos Atuais (Pós-Herpes Zoster)",
@@ -244,14 +244,15 @@
         ];
         
         function showSavedFeedback(element) {
-            const li = element.closest('li');
-            if (!li) return; // Certificar que o elemento li foi encontrado
-
-            // Tenta encontrar um feedback para checkbox ou para nota dentro do li
-            let feedbackEl = li.querySelector('.item-div .saved-feedback'); // Feedback do checkbox
-            if (element.tagName === 'TEXTAREA') {
-                 feedbackEl = li.querySelector('.note-area .saved-feedback'); // Feedback da nota
+            // Tenta encontrar o elemento de feedback mais próximo subindo na árvore a partir do elemento alvo do evento
+            let targetElementForFeedback = element;
+            if (element.type === 'checkbox') {
+                targetElementForFeedback = element.closest('.item-div');
+            } else if (element.tagName === 'TEXTAREA') {
+                targetElementForFeedback = element.closest('.note-area');
             }
+
+            const feedbackEl = targetElementForFeedback ? targetElementForFeedback.querySelector('.saved-feedback') : null;
             
             if (feedbackEl) {
                 feedbackEl.classList.add('show');
@@ -262,9 +263,10 @@
         }
 
         async function saveData(itemId, type, value, eventTargetElement = null) {
-            if (!userId || !guideDataRef) { // Verifica se userId também está definido
-                console.warn("Usuário não autenticado ou referência do Firestore não está pronta.");
-                authStatusEl.textContent = "Não autenticado. Faça login para salvar.";
+            if (!userId || !guideDataRef) {
+                console.warn("Usuário não autenticado ou referência do Firestore não está pronta. Não é possível salvar.");
+                authStatusEl.textContent = "Não autenticado. Faça login para salvar os dados.";
+                // Não mostra feedback de "salvo" se não conseguiu salvar
                 return;
             }
 
@@ -274,13 +276,13 @@
             
             try {
                 await setDoc(guideDataRef, updateData, { merge: true });
-                console.log(`Dados guardados para ${key}:`, value);
+                console.log(`Dados guardados no Firestore para ${key}:`, value);
                 if (eventTargetElement) {
                     showSavedFeedback(eventTargetElement);
                 }
             } catch (error) {
-                console.error(`Erro ao guardar dados para ${key}:`, error);
-                authStatusEl.textContent = `Erro ao guardar dados: ${error.message}`;
+                console.error(`Erro ao guardar dados no Firestore para ${key}:`, error);
+                authStatusEl.textContent = `Erro ao guardar dados: ${error.message}. Verifique o console para detalhes.`;
             }
         }
 
@@ -290,7 +292,6 @@
                 section.content.forEach(contentItem => {
                     if (contentItem.type === "item") {
                         const checkbox = document.getElementById(contentItem.id);
-                        // Ajuste no seletor para encontrar a textarea corretamente
                         const noteTextArea = document.querySelector(`textarea[data-itemid="${contentItem.id}"]`);
 
                         if (checkbox) {
@@ -300,74 +301,79 @@
                         if (noteTextArea) {
                             const notesValue = localGuideData[`${contentItem.id}_notes`];
                             noteTextArea.value = typeof notesValue === 'string' ? notesValue : '';
-                            // Mostrar a área de nota se houver conteúdo salvo
-                            if(noteTextArea.value.trim() !== "") {
-                                 const noteAreaDiv = noteTextArea.closest('.note-area');
-                                 if (noteAreaDiv) noteAreaDiv.classList.remove('hidden');
-                            } else { // Esconder se não houver conteúdo
-                                const noteAreaDiv = noteTextArea.closest('.note-area');
-                                 if (noteAreaDiv) noteAreaDiv.classList.add('hidden');
+                            const noteAreaDiv = noteTextArea.closest('.note-area');
+                            if (noteAreaDiv) {
+                                if(noteTextArea.value.trim() !== "") {
+                                    noteAreaDiv.classList.remove('hidden');
+                                } else {
+                                    noteAreaDiv.classList.add('hidden');
+                                }
                             }
                         }
                     }
                 });
             });
+            console.log("Dados aplicados à interface.");
         }
         
         async function signInWithGoogle() {
             const provider = new GoogleAuthProvider();
             try {
+                authStatusEl.textContent = "A tentar login com Google...";
                 await signInWithPopup(auth, provider);
-                // onAuthStateChanged lidará com o resto
+                // onAuthStateChanged lidará com a atualização da UI e carregamento de dados
             } catch (error) {
                 console.error("Erro no login com Google:", error);
-                authStatusEl.textContent = `Falha no login com Google: ${error.message}`;
+                authStatusEl.textContent = `Falha no login com Google: ${error.message}. Tente novamente ou verifique o console.`;
+                // Se o popup foi fechado pelo usuário, não tentar login anônimo imediatamente
+                if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+                   // Se não foi cancelamento do usuário, talvez tentar anônimo como fallback se desejado
+                   // await attemptAnonymousSignIn(); // Removido para priorizar escolha do usuário
+                }
             }
         }
 
         async function attemptAnonymousSignIn() {
-             if (auth.currentUser) return; // Já está logado (pode ser de uma sessão anterior ou Google)
+             if (auth.currentUser) return; 
              try {
-                console.log("Tentando login anônimo...");
+                authStatusEl.textContent = "A tentar login anônimo...";
                 await signInAnonymously(auth);
              } catch(error) {
                 console.error("Erro no login anônimo:", error);
-                // Não sobrescrever status se já houver erro do Google
-                if (!authStatusEl.textContent.startsWith("Falha no login com Google")) {
-                     authStatusEl.textContent = `Falha no login anônimo: ${error.message}. Tente o login com Google.`;
-                }
+                authStatusEl.textContent = `Falha no login anônimo: ${error.message}.`;
              }
         }
-
 
         async function setupAuthAndListeners() {
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
                     userId = user.uid;
-                    authStatusEl.textContent = `Autenticado como: ${user.displayName || user.email || (user.isAnonymous ? 'Utilizador Anónimo' : user.uid)}`;
+                    authStatusEl.textContent = `Autenticado como: ${user.displayName || user.email || (user.isAnonymous ? 'Utilizador Anónimo' : 'ID: '+user.uid.substring(0,8)+'...')}`;
                     userIdDisplayEl.textContent = `ID do Utilizador: ${userId}`;
                     loginButton.classList.add('hidden');
                     logoutButton.classList.remove('hidden');
                     
                     guideDataRef = doc(db, "artifacts", firestorePathAppId, "users", userId, "guides", "patientGuideData");
+                    console.log("Referência do Firestore definida para:", guideDataRef.path);
                     
                     if (unsubscribeFirestore) {
                         unsubscribeFirestore(); 
                     }
                     unsubscribeFirestore = onSnapshot(guideDataRef, (docSnap) => {
                         if (docSnap.exists()) {
+                            console.log("Dados recebidos do Firestore:", docSnap.data());
                             loadAndApplyData(docSnap.data());
                         } else {
-                            console.log("Nenhum dado existente para este usuário, criando novo documento...");
+                            console.log("Nenhum dado existente para este usuário no Firestore. Carregando interface vazia.");
                             loadAndApplyData({}); 
                         }
                     }, (error) => {
                         console.error("Erro ao ouvir snapshots do Firestore:", error);
-                        authStatusEl.textContent = "Erro ao carregar dados. Tente recarregar a página.";
+                        authStatusEl.textContent = "Erro ao carregar dados do Firestore. Verifique o console.";
                     });
 
-                } else {
-                    authStatusEl.textContent = "Por favor, faça login para uma melhor experiência e para salvar seus dados na nuvem.";
+                } else { // Usuário não está logado
+                    authStatusEl.textContent = "Por favor, faça login com Google para salvar e carregar seus dados.";
                     userId = null;
                     guideDataRef = null;
                     loginButton.classList.remove('hidden');
@@ -378,10 +384,10 @@
                         unsubscribeFirestore = null;
                     }
                     loadAndApplyData({}); // Limpa a UI
-
-                    // Opcional: Tentar login anônimo automaticamente se o usuário não estiver logado.
-                    // Descomente a linha abaixo se desejar este comportamento.
-                    // await attemptAnonymousSignIn(); 
+                    
+                    // Não tentar login anônimo automaticamente aqui para dar preferência ao botão do Google.
+                    // O usuário pode escolher clicar no botão do Google.
+                    // Se quisesse login anônimo automático como fallback ao iniciar sem usuário, chamaria attemptAnonymousSignIn() aqui.
                 }
             });
         }
@@ -390,6 +396,8 @@
         logoutButton.addEventListener('click', async () => {
             try {
                 await signOut(auth);
+                // onAuthStateChanged vai lidar com a limpeza da UI e atualização do status.
+                console.log("Logout realizado.");
             } catch (error) {
                 console.error("Erro no logout:", error);
             }
@@ -400,7 +408,7 @@
             const sectionsContainerEl = document.getElementById('sections-container');
             document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-            setupAuthAndListeners();
+            setupAuthAndListeners(); // Configura ouvintes de autenticação e carrega dados se já logado.
             
             sectionsData.forEach((section, index) => {
                 const tabButton = document.createElement('button');
@@ -442,7 +450,7 @@
                         listItem.className = 'py-3 sm:py-4 border-b border-slate-100 last:border-b-0';
 
                         const itemDiv = document.createElement('div');
-                        itemDiv.className = 'flex items-start space-x-3 item-div'; // Adicionada classe item-div
+                        itemDiv.className = 'flex items-start space-x-3 item-div';
 
                         const checkbox = document.createElement('input');
                         checkbox.id = contentItem.id;
@@ -466,7 +474,7 @@
                         itemDiv.appendChild(noteButton);
                         
                         const savedFeedbackCheck = document.createElement('span');
-                        savedFeedbackCheck.className = 'saved-feedback'; // Removido ml-2, pois já está no itemDiv
+                        savedFeedbackCheck.className = 'saved-feedback';
                         savedFeedbackCheck.textContent = 'Guardado!';
                         itemDiv.appendChild(savedFeedbackCheck);
 
@@ -538,3 +546,28 @@
     </script>
 </body>
 </html>
+```
+
+**Principais Pontos deste Código:**
+
+1.  **`firebaseConfig`:** No topo do script, há um objeto `firebaseConfig`. **Você PRECISA substituir os valores de exemplo (`apiKey`, `authDomain`, etc.) pelos valores reais do seu projeto Firebase `siteconsulta-8c871`.** Você encontra esses valores no Console do Firebase > Configurações do Projeto > Seus apps > (selecione seu app da Web).
+2.  **`firestorePathAppId`:** Esta variável é usada para construir o caminho no Firestore. Ela usa `default-app-id-guia-medico` como padrão. Certifique-se de que suas regras de segurança do Firestore usam este mesmo ID no caminho: `match /artifacts/default-app-id-guia-medico/users/{userId}/guides/patientGuideData`.
+3.  **Botões de Login/Logout:** Foram adicionados um botão "Entrar com Google" e um botão "Sair" no cabeçalho.
+4.  **Lógica de Autenticação Atualizada (`setupAuthAndListeners`):**
+    * O `onAuthStateChanged` agora lida com usuários logados (via Google ou Anônimo) e usuários deslogados.
+    * Quando o usuário está logado, o `userId` é capturado, e a referência `guideDataRef` é criada para o documento específico desse usuário no Firestore. O listener `onSnapshot` é ativado para carregar e sincronizar os dados.
+    * Quando o usuário não está logado (ou faz logout), a UI é atualizada para mostrar o botão de login, e os dados são limpos.
+    * A tentativa de login anônimo automático ao carregar a página (se nenhum usuário estiver logado) foi comentada para dar prioridade ao clique explícito no botão "Entrar com Google". Você pode descomentar a linha `// await attemptAnonymousSignIn();` dentro do bloco `else` de `onAuthStateChanged` se quiser que ele tente o login anônimo automaticamente caso o usuário não esteja logado de outra forma.
+5.  **Funções `signInWithGoogle` e `signOut`:** Foram adicionadas para lidar com esses fluxos.
+6.  **Feedback Visual de "Guardado!":** A lógica para o feedback visual foi ligeiramente ajustada para tentar encontrar o elemento de feedback corretamente.
+7.  **Mensagens de Status e Erro:** O elemento `authStatusEl` fornecerá mais feedback sobre o status da autenticação e possíveis erros.
+
+**Para Usar Este Código:**
+
+1.  **Substitua o `firebaseConfig`** com os seus dados reais.
+2.  **Certifique-se de que as configurações no Console do Firebase estão corretas** (Autenticação Anônima e Google habilitadas, Regras do Firestore corretas, Domínio Autorizado).
+3.  Substitua o conteúdo do seu `index.html` atual por este código completo.
+4.  Envie para o seu repositório Git, e a Vercel (ou sua plataforma de hospedagem) fará o deploy.
+5.  Teste no seu site publicado, observando o console do desenvolvedor (F12) para quaisquer erros.
+
+Este código implementa o armazenamento do `userId` (usado no caminho do Firestore) e das mensagens das caixas de texto, além do estado dos checkboxes, usando o Firebase como backe
