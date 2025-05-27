@@ -1,89 +1,466 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to Firebase Hosting</title>
-
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/11.8.1/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/11.8.1/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/11.8.1/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/11.8.1/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/11.8.1/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/11.8.1/firebase-messaging-compat.js"></script>
-    <script defer src="/__/firebase/11.8.1/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/11.8.1/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/11.8.1/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/11.8.1/firebase-performance-compat.js"></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
-
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="message">
-      <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
-    </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
-
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const loadEl = document.querySelector('#load');
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.firestore().doc('/foo/bar').get().then(() => { });
-        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        // firebase.analytics(); // call to activate
-        // firebase.analytics().logEvent('tutorial_completed');
-        // firebase.performance(); // call to activate
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-
-        try {
-          let app = firebase.app();
-          let features = [
-            'auth', 
-            'database', 
-            'firestore',
-            'functions',
-            'messaging', 
-            'storage', 
-            'analytics', 
-            'remoteConfig',
-            'performance',
-          ].filter(feature => typeof app[feature] === 'function');
-          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia Interativo para Consulta Médica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
         }
-      });
+        .tab-button.active {
+            border-color: #0369a1; /* sky-700 */
+            color: #0369a1; /* sky-700 */
+            background-color: #e0f2fe; /* sky-100 */
+        }
+        .tab-button {
+            transition: all 0.3s ease-in-out;
+        }
+        .note-area {
+            background-color: #f8fafc; /* slate-50 */
+            border: 1px solid #e2e8f0; /* slate-300 */
+        }
+        .note-area textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        .note-area textarea::-webkit-scrollbar-track {
+            background: #f1f5f9; /* slate-100 */
+        }
+        .note-area textarea::-webkit-scrollbar-thumb {
+            background: #94a3b8; /* slate-400 */
+            border-radius: 4px;
+        }
+        .note-area textarea::-webkit-scrollbar-thumb:hover {
+            background: #64748b; /* slate-500 */
+        }
+        .interactive-element {
+            min-height: 44px;
+            min-width: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        input[type="checkbox"] {
+            width: 1.25rem; /* 20px */
+            height: 1.25rem; /* 20px */
+        }
+        .saved-feedback {
+            font-size: 0.75rem; /* text-xs */
+            color: #10b981; /* emerald-500 */
+            opacity: 0;
+            transition: opacity 0.5s ease-out;
+            margin-left: 0.5rem; /* ml-2 */
+        }
+        .saved-feedback.show {
+            opacity: 1;
+        }
+    </style>
+    </head>
+<body class="bg-slate-50 text-slate-800 antialiased">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-5xl">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-sky-700">Guia Interativo para Consulta Médica</h1>
+            <p class="text-slate-600 mt-3 text-base sm:text-lg">Prepare-se para sua consulta médica de forma organizada e eficiente. Seus dados são guardados automaticamente na nuvem.</p>
+            <div id="auth-status" class="mt-2 text-xs text-slate-500">A inicializar autenticação...</div>
+            <div id="user-id-display" class="mt-1 text-xs text-slate-400"></div>
+        </header>
+
+        <main class="bg-white shadow-xl rounded-lg p-4 sm:p-6 md:p-8">
+            <div id="tabs-container" class="mb-6">
+                <nav class="flex flex-wrap -mb-px" aria-label="Abas">
+                    </nav>
+            </div>
+
+            <div id="sections-container">
+                </div>
+
+            <div class="mt-8 p-4 bg-sky-50 border-l-4 border-sky-500 text-sky-700 rounded-r-md">
+                <p class="font-semibold">Lembrete Importante:</p>
+                <p class="text-sm">Não se esqueça de levar todos os seus exames anteriores e a lista completa de medicações para a consulta.</p>
+            </div>
+        </main>
+
+        <footer class="mt-12 text-center text-sm text-slate-500">
+            <p>&copy; <span id="currentYear"></span> Guia Interativo. Adaptado do documento fornecido.</p>
+        </footer>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "AIzaSyB6c5lJimTVpxC03an7wYujFBgeRd2sInE", authDomain: "siteconsulta-8c871.firebaseapp.com", projectId: "siteconsulta-8c871", storageBucket: "siteconsulta-8c871.firebasestorage.app", messagingSenderId: "142207316040", appId: "G-0E29JXZXH5" };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id-guia-medico';
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        // setLogLevel('debug'); 
+
+        let userId = null;
+        let guideDataRef = null;
+        let localGuideData = {}; 
+        let unsubscribeFirestore = null; // Para cancelar o listener do onSnapshot
+
+        const authStatusEl = document.getElementById('auth-status');
+        const userIdDisplayEl = document.getElementById('user-id-display');
+
+        const sectionsData = [
+            {
+                id: "sintomas-agudos",
+                tabName: "Sintomas Agudos",
+                title: "I. Avaliação dos Sintomas Agudos Atuais (Pós-Herpes Zoster)",
+                introduction: "Esta seção é crucial para detalhar seus sintomas agudos recentes. Ao preencher e revisar os pontos sobre febre, tontura, dor de cabeça, tosse, e outros, incluindo a cronologia e medicações, você ajudará o(a) médico(a) a entender melhor seu quadro atual pós-Herpes Zoster.",
+                content: [
+                    { type: "subheading", text: "Descrição Detalhada dos Sintomas:" },
+                    { type: "item", id: "sa_febre", text: "Febre: Início, intensidade máxima, padrão (constante, intermitente), calafrios, sudorese." },
+                    { type: "item", id: "sa_tontura", text: "Tontura: Tipo (rotatória/vertigem, sensação de cabeça leve, instabilidade), fatores de melhora ou piora, associação com movimentos." },
+                    { type: "item", id: "sa_dor_cabeca", text: "Dor de Cabeça: Localização, tipo (pulsátil, pressão, etc.), intensidade, frequência, fatores de melhora ou piora, sintomas associados (náuseas, vômitos, sensibilidade à luz/som)." },
+                    { type: "item", id: "sa_tosse", text: "Tosse: Início, se seca ou produtiva (com expectoração – cor, quantidade), frequência, piora à noite ou em alguma posição, dor torácica associada." },
+                    { type: "item", id: "sa_outros_sintomas", text: "Outros Sintomas: Mal-estar geral, fadiga, dores musculares, perda de apetite, alterações no paladar/olfato." },
+                    { type: "item", id: "sa_cronologia", text: "Cronologia: Data exata de início de cada sintoma e evolução desde então." },
+                    { type: "item", id: "sa_fatores", text: "Fatores Desencadeantes/Agravantes/Atenuantes: Alguma situação específica que piora ou melhora os sintomas?" },
+                    { type: "item", id: "sa_medicacoes_atuais", text: "Medicações Utilizadas para os Sintomas Atuais: Quais, doses, frequência e eficácia." }
+                ]
+            },
+            {
+                id: "revisao-herpes-zoster",
+                tabName: "Herpes Zoster",
+                title: "II. Revisão do Episódio de Herpes Zoster",
+                introduction: "Relembrar os detalhes do seu episódio de Herpes Zoster é importante. Esta seção aborda desde o início das lesões até sintomas residuais e o impacto geral, fornecendo um contexto valioso para a consulta.",
+                content: [
+                    { type: "item", id: "hz_data_inicio", text: "Data de Início e Resolução das Lesões Cutâneas." },
+                    { type: "item", id: "hz_sintomas_associados", text: "Sintomas Associados ao Zoster: Intensidade da dor durante a fase aguda, tipo de dor." },
+                    { type: "item", id: "hz_tratamento_realizado", text: "Tratamento Realizado para o Herpes Zoster: Medicações utilizadas (antivirais, analgésicos), doses e duração." },
+                    { type: "item", id: "hz_sintomas_residuais", text: "Sintomas Residuais Pós-Zoster: Persistência de dor (neuralgia pós-herpética), sensibilidade alterada na área afetada, coceira." },
+                    { type: "item", id: "hz_impacto_geral", text: "Impacto do Zoster no Estado Geral: Como se sentiu durante e logo após o episódio." }
+                ]
+            },
+            {
+                id: "condicoes-cronicas",
+                tabName: "Condições Crônicas",
+                title: "III. Avaliação das Condições Crônicas e Fatores de Risco",
+                introduction: "Suas condições de saúde preexistentes e fatores de risco são informações essenciais. Esta seção ajuda a organizar dados sobre seu coração, tireoide, função renal, níveis de colesterol, apneia do sono e histórico de vacinação.",
+                content: [
+                    { type: "subheading", text: "Condição Cardíaca:" },
+                    { type: "item", id: "cc_diagnostico", text: "Diagnóstico específico (se conhecido)." },
+                    { type: "item", id: "cc_sintomas_relacionados", text: "Sintomas atuais relacionados (dor no peito, falta de ar, palpitações, inchaço nas pernas)." },
+                    { type: "item", id: "cc_adesao_tratamento", text: "Adesão ao tratamento e acompanhamento cardiológico regular." },
+                    { type: "subheading", text: "Função Tireoidiana (Hipotireoidismo Subclínico Identificado em Março/2025):" },
+                    { type: "item", id: "ft_data_inicio_medicacao", text: "Data de início da medicação para tireoide." },
+                    { type: "item", id: "ft_nome_medicacao_dose", text: "Nome da medicação e dose atual." },
+                    { type: "item", id: "ft_sintomas_investigacao", text: "Sintomas que levaram à investigação ou sintomas atuais que poderiam estar relacionados à tireoide (cansaço, alterações de peso, humor, pele seca, etc.)." },
+                    { type: "item", id: "ft_ultimo_controle_tsh_t4", text: "Data do último controle de TSH/T4 Livre (se houver algum após março/2025)." },
+                    { type: "subheading", text: "Função Renal (eGFR 65 e Hemoglobina +++ na Urina em Março/2025):" },
+                    { type: "item", id: "fr_discutir_achados", text: "Discutir esses achados com o médico." },
+                    { type: "item", id: "fr_investigacao_hematuria", text: "Questionar sobre a necessidade de investigação adicional para a hematúria." },
+                    { type: "item", id: "fr_sintomas_urinarios", text: "Sintomas urinários atuais (dor ao urinar, aumento da frequência, urgência, alteração na cor da urina)." },
+                    { type: "subheading", text: "Dislipidemia (Colesterol e Triglicérides Elevados em Março/2025):" },
+                    { type: "item", id: "d_manejo_atual", text: "Estratégias de manejo atuais (dieta, exercício, medicação específica se houver)." },
+                    { type: "item", id: "d_metas_colesterol", text: "Metas de colesterol e triglicérides definidas pelo cardiologista." },
+                    { type: "subheading", text: "Apneia do Sono:" },
+                    { type: "item", id: "as_diagnostico", text: "Diagnóstico (data, como foi feito – polissonografia?)." },
+                    { type: "item", id: "as_tratamento_atual", text: "Tratamento atual (CPAP, aparelho intraoral, medidas posturais/comportamentais)." },
+                    { type: "item", id: "as_adesao_eficacia", text: "Adesão e eficácia do tratamento para apneia." },
+                    { type: "item", id: "as_sintomas_diurnos", text: "Sintomas diurnos relacionados (sonolência excessiva, cansaço ao acordar, dificuldade de concentração)." },
+                    { type: "subheading", text: "Histórico de Vacinação:" },
+                    { type: "item", id: "hv_vacina_gripe", text: "Confirmar data da vacina da gripe." },
+                    { type: "item", id: "hv_outras_vacinas", text: "Outras vacinas importantes para adultos (pneumocócica, herpes zoster – se indicada e não contraindicada)." }
+                ]
+            },
+            {
+                id: "revisao-medicacoes",
+                tabName: "Medicações",
+                title: "IV. Revisão de Medicações",
+                introduction: "Manter uma lista atualizada de todas as suas medicações é vital. Utilize esta seção para listar todos os remédios, incluindo doses e horários, além de alergias conhecidas e possíveis interações.",
+                content: [
+                    { type: "subheading", text: "Listar TODAS as medicações em uso:" },
+                    { type: "item", id: "rm_coracao", text: "Para o coração (nomes, doses, horários)." },
+                    { type: "item", id: "rm_tireoide", text: "Para a tireoide (nome, dose, horário)." },
+                    { type: "item", id: "rm_herpes_zoster", text: "Para o herpes zoster (se ainda em uso de algo para dor residual)." },
+                    { type: "item", id: "rm_sintomas_agudos", text: "Para os sintomas agudos atuais." },
+                    { type: "item", id: "rm_outras_medicacoes", text: "Quaisquer outras medicações de uso contínuo ou esporádico (vitaminas, suplementos, fitoterápicos, analgésicos, etc.)." },
+                    { type: "item", id: "rm_alergias", text: "Alergias Medicamentosas Conhecidas." },
+                    { type: "item", id: "rm_interacoes_efeitos", text: "Possíveis Interações ou Efeitos Colaterais: Discutir se algum dos sintomas atuais poderia estar relacionado a alguma medicação." }
+                ]
+            },
+            {
+                id: "estilo-vida",
+                tabName: "Estilo de Vida",
+                title: "V. Estilo de Vida e Hábitos",
+                introduction: "Seus hábitos diários têm grande impacto na sua saúde. Esta seção permite revisar aspectos como alimentação, atividade física, sono, tabagismo, etilismo e níveis de estresse.",
+                content: [
+                    { type: "item", id: "ev_alimentacao", text: "Alimentação: Padrão alimentar geral." },
+                    { type: "item", id: "ev_atividade_fisica", text: "Atividade Física: Tipo, frequência, intensidade (considerando o período antes dos sintomas agudos)." },
+                    { type: "item", id: "ev_sono", text: "Sono: Qualidade do sono (além da apneia), horas dormidas." },
+                    { type: "item", id: "ev_tabagismo_etilismo", text: "Tabagismo e Etilismo: Se presente, quantidade e frequência." },
+                    { type: "item", id: "ev_nivel_estresse", text: "Nível de Estresse." }
+                ]
+            },
+            {
+                id: "plano-acao",
+                tabName: "Plano de Ação",
+                title: "VI. Plano de Ação e Próximos Passos",
+                introduction: "Esta seção final é para alinhar as expectativas e os próximos passos com seu(sua) médico(a). Inclui diagnóstico, tratamento, encaminhamentos, ajustes de medicação e orientações gerais.",
+                content: [
+                    { type: "item", id: "pa_diagnostico_sintomas", text: "Diagnóstico dos Sintomas Atuais: Quais exames adicionais são necessários (ex: exames de sangue como hemograma e PCR para avaliar infecção/inflamação aguda, exames de imagem como radiografia de tórax, testes para vírus respiratórios)?" },
+                    { type: "item", id: "pa_tratamento_sintomas", text: "Tratamento para os Sintomas Atuais: Qual a conduta terapêutica?" },
+                    { type: "subheading", text: "Encaminhamentos:" },
+                    { type: "item", id: "pa_enc_acompanhamento", text: "Reafirmar a necessidade de acompanhamento com Cardiologista, Endocrinologista, Pneumologista (apneia e sintomas respiratórios agudos) e Nefrologista." },
+                    { type: "item", id: "pa_enc_infectologista", text: "Considerar Infectologista para o quadro agudo." },
+                    { type: "item", id: "pa_ajustes_medicacoes", text: "Ajustes nas Medicações Crônicas: Necessidade de alterar doses ou tipos de medicamentos." },
+                    { type: "item", id: "pa_orientacoes_gerais", text: "Orientações Gerais: Repouso, hidratação, sinais de alerta para procurar atendimento de urgência." },
+                    { type: "item", id: "pa_agendamento_retorno", text: "Agendamento de Retorno e Exames de Seguimento." }
+                ]
+            }
+        ];
+        
+        function showSavedFeedback(element) {
+            const feedbackEl = element.closest('li').querySelector('.saved-feedback');
+            if (feedbackEl) {
+                feedbackEl.classList.add('show');
+                setTimeout(() => {
+                    feedbackEl.classList.remove('show');
+                }, 1500);
+            }
+        }
+
+        async function saveData(itemId, type, value, eventTargetElement = null) {
+            if (!guideDataRef) {
+                console.warn("Referência do Firestore não está pronta. A aguardar autenticação.");
+                return;
+            }
+
+            const key = `${itemId}_${type}`;
+            const updateData = {};
+            updateData[key] = value;
+            
+            try {
+                await setDoc(guideDataRef, updateData, { merge: true });
+                console.log(`Dados guardados para ${key}:`, value);
+                if (eventTargetElement) {
+                    showSavedFeedback(eventTargetElement);
+                }
+            } catch (error) {
+                console.error(`Erro ao guardar dados para ${key}:`, error);
+            }
+        }
+
+        function loadAndApplyData(data) {
+            localGuideData = data || {};
+            sectionsData.forEach(section => {
+                section.content.forEach(contentItem => {
+                    if (contentItem.type === "item") {
+                        const checkbox = document.getElementById(contentItem.id);
+                        const noteTextArea = document.querySelector(`#section-panel-${section.id} textarea[data-itemid="${contentItem.id}"]`);
+
+                        if (checkbox) {
+                            const checkedValue = localGuideData[`${contentItem.id}_checked`];
+                            checkbox.checked = typeof checkedValue === 'boolean' ? checkedValue : false;
+                        }
+                        if (noteTextArea) {
+                            const notesValue = localGuideData[`${contentItem.id}_notes`];
+                            noteTextArea.value = typeof notesValue === 'string' ? notesValue : '';
+                            if(noteTextArea.value.trim() !== "") {
+                                 noteTextArea.closest('.note-area').classList.remove('hidden');
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        async function setupAuthAndListeners() {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    userId = user.uid;
+                    authStatusEl.textContent = `Autenticado como: ${user.isAnonymous ? 'Utilizador Anónimo' : user.email || user.uid}`;
+                    userIdDisplayEl.textContent = `ID do Utilizador: ${userId}`;
+                    
+                    guideDataRef = doc(db, "artifacts", appId, "users", userId, "guides", "patientGuideData");
+                    
+                    if (unsubscribeFirestore) {
+                        unsubscribeFirestore(); // Cancela listener anterior, se houver
+                    }
+                    unsubscribeFirestore = onSnapshot(guideDataRef, (docSnap) => {
+                        if (docSnap.exists()) {
+                            loadAndApplyData(docSnap.data());
+                        } else {
+                            loadAndApplyData({}); 
+                        }
+                    }, (error) => {
+                        console.error("Erro ao ouvir snapshots do Firestore:", error);
+                        authStatusEl.textContent = "Erro ao carregar dados. Tente recarregar a página.";
+                    });
+
+                } else {
+                    authStatusEl.textContent = "A autenticar...";
+                    userId = null;
+                    guideDataRef = null;
+                    if (unsubscribeFirestore) {
+                        unsubscribeFirestore();
+                        unsubscribeFirestore = null;
+                    }
+                    try {
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                    } catch (error) {
+                        console.error("Erro de autenticação:", error);
+                        authStatusEl.textContent = "Falha na autenticação. Não é possível guardar/carregar dados.";
+                        userIdDisplayEl.textContent = "";
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabsContainerEl = document.getElementById('tabs-container').querySelector('nav');
+            const sectionsContainerEl = document.getElementById('sections-container');
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            setupAuthAndListeners();
+            
+            sectionsData.forEach((section, index) => {
+                const tabButton = document.createElement('button');
+                tabButton.className = `tab-button whitespace-nowrap py-3 px-3 sm:px-4 border-b-2 font-medium text-sm sm:text-base text-slate-500 hover:text-sky-600 hover:border-sky-600 focus:outline-none rounded-t-md`;
+                tabButton.textContent = section.tabName;
+                tabButton.setAttribute('role', 'tab');
+                tabButton.setAttribute('aria-controls', `section-panel-${section.id}`);
+                tabButton.setAttribute('aria-selected', 'false');
+                tabButton.dataset.target = `section-panel-${section.id}`;
+                tabsContainerEl.appendChild(tabButton);
+
+                const sectionPanel = document.createElement('div');
+                sectionPanel.id = `section-panel-${section.id}`;
+                sectionPanel.className = `section-panel p-1 sm:p-2 hidden`;
+                sectionPanel.setAttribute('role', 'tabpanel');
+                sectionPanel.setAttribute('tabindex', '0');
+
+                const sectionTitle = document.createElement('h2');
+                sectionTitle.className = 'text-xl sm:text-2xl font-semibold text-sky-700 mb-2';
+                sectionTitle.textContent = section.title;
+                sectionPanel.appendChild(sectionTitle);
+                
+                const sectionIntro = document.createElement('p');
+                sectionIntro.className = 'text-sm text-slate-600 mb-6';
+                sectionIntro.textContent = section.introduction;
+                sectionPanel.appendChild(sectionIntro);
+
+                const contentList = document.createElement('ul');
+                contentList.className = 'space-y-3';
+
+                section.content.forEach(contentItem => {
+                    if (contentItem.type === "subheading") {
+                        const subheading = document.createElement('h3');
+                        subheading.className = 'text-md sm:text-lg font-semibold text-slate-700 mt-5 mb-1 pt-2 border-t border-slate-200';
+                        subheading.textContent = contentItem.text;
+                        contentList.appendChild(subheading);
+                    } else if (contentItem.type === "item") {
+                        const listItem = document.createElement('li');
+                        listItem.className = 'py-3 sm:py-4 border-b border-slate-100 last:border-b-0';
+
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'flex items-start space-x-3';
+
+                        const checkbox = document.createElement('input');
+                        checkbox.id = contentItem.id;
+                        checkbox.type = 'checkbox';
+                        checkbox.className = 'mt-1 h-5 w-5 text-sky-600 border-slate-400 rounded focus:ring-sky-500 shrink-0';
+                        checkbox.addEventListener('change', (e) => {
+                            saveData(contentItem.id, 'checked', e.target.checked, e.target);
+                        });
+                        itemDiv.appendChild(checkbox);
+
+                        const label = document.createElement('label');
+                        label.htmlFor = contentItem.id;
+                        label.className = 'text-sm sm:text-base text-slate-700 flex-1 min-w-0 break-words';
+                        label.textContent = contentItem.text;
+                        itemDiv.appendChild(label);
+                        
+                        const noteButton = document.createElement('button');
+                        noteButton.className = 'interactive-element text-slate-500 hover:text-sky-600 p-1 ml-auto shrink-0';
+                        noteButton.setAttribute('aria-label', `Adicionar nota para ${contentItem.text.substring(0,20)}...`);
+                        noteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>`;
+                        itemDiv.appendChild(noteButton);
+                        
+                        const savedFeedbackCheck = document.createElement('span'); // Mover para dentro do itemDiv
+                        savedFeedbackCheck.className = 'saved-feedback';
+                        savedFeedbackCheck.textContent = 'Guardado!';
+                        itemDiv.appendChild(savedFeedbackCheck);
+
+                        listItem.appendChild(itemDiv);
+
+                        const noteArea = document.createElement('div');
+                        noteArea.className = 'ml-8 mt-2 note-area hidden relative'; // Adicionado relative para posicionar o feedback
+                        const textArea = document.createElement('textarea');
+                        textArea.className = 'w-full p-2 border border-slate-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 text-sm';
+                        textArea.rows = 2;
+                        textArea.placeholder = 'Suas anotações aqui...';
+                        textArea.dataset.itemid = contentItem.id; // Adicionar dataset para fácil seleção
+                        textArea.addEventListener('blur', (e) => { // Salvar no blur
+                            saveData(contentItem.id, 'notes', e.target.value, e.target);
+                        });
+                        noteArea.appendChild(textArea);
+                        
+                        const savedFeedbackNote = document.createElement('span');
+                        savedFeedbackNote.className = 'saved-feedback absolute bottom-1 right-1'; // Posicionamento do feedback
+                        savedFeedbackNote.textContent = 'Guardado!';
+                        noteArea.appendChild(savedFeedbackNote);
+
+                        listItem.appendChild(noteArea);
+
+                        noteButton.addEventListener('click', () => {
+                            noteArea.classList.toggle('hidden');
+                            if (!noteArea.classList.contains('hidden')) {
+                                textArea.focus();
+                            }
+                        });
+                        contentList.appendChild(listItem);
+                    }
+                });
+                sectionPanel.appendChild(contentList);
+                sectionsContainerEl.appendChild(sectionPanel);
+            });
+
+            const tabButtons = tabsContainerEl.querySelectorAll('.tab-button');
+            const sectionPanels = sectionsContainerEl.querySelectorAll('.section-panel');
+
+            // Lógica de ativação inicial da aba (pode ser a primeira ou uma salva anteriormente se implementado)
+            if (tabButtons.length > 0) {
+                tabButtons[0].classList.add('active');
+                tabButtons[0].setAttribute('aria-selected', 'true');
+                const firstPanelId = tabButtons[0].dataset.target;
+                const firstPanel = document.getElementById(firstPanelId);
+                if (firstPanel) firstPanel.classList.remove('hidden');
+            }
+
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.setAttribute('aria-selected', 'false');
+                    });
+                    sectionPanels.forEach(panel => {
+                        panel.classList.add('hidden');
+                    });
+
+                    button.classList.add('active');
+                    button.setAttribute('aria-selected', 'true');
+                    const targetPanelId = button.dataset.target;
+                    const targetPanel = document.getElementById(targetPanelId);
+                    if (targetPanel) {
+                        targetPanel.classList.remove('hidden');
+                    }
+                });
+            });
+        });
     </script>
-  </body>
+</body>
 </html>
