@@ -546,28 +546,3 @@
     </script>
 </body>
 </html>
-```
-
-**Principais Pontos deste Código:**
-
-1.  **`firebaseConfig`:** No topo do script, há um objeto `firebaseConfig`. **Você PRECISA substituir os valores de exemplo (`apiKey`, `authDomain`, etc.) pelos valores reais do seu projeto Firebase `siteconsulta-8c871`.** Você encontra esses valores no Console do Firebase > Configurações do Projeto > Seus apps > (selecione seu app da Web).
-2.  **`firestorePathAppId`:** Esta variável é usada para construir o caminho no Firestore. Ela usa `default-app-id-guia-medico` como padrão. Certifique-se de que suas regras de segurança do Firestore usam este mesmo ID no caminho: `match /artifacts/default-app-id-guia-medico/users/{userId}/guides/patientGuideData`.
-3.  **Botões de Login/Logout:** Foram adicionados um botão "Entrar com Google" e um botão "Sair" no cabeçalho.
-4.  **Lógica de Autenticação Atualizada (`setupAuthAndListeners`):**
-    * O `onAuthStateChanged` agora lida com usuários logados (via Google ou Anônimo) e usuários deslogados.
-    * Quando o usuário está logado, o `userId` é capturado, e a referência `guideDataRef` é criada para o documento específico desse usuário no Firestore. O listener `onSnapshot` é ativado para carregar e sincronizar os dados.
-    * Quando o usuário não está logado (ou faz logout), a UI é atualizada para mostrar o botão de login, e os dados são limpos.
-    * A tentativa de login anônimo automático ao carregar a página (se nenhum usuário estiver logado) foi comentada para dar prioridade ao clique explícito no botão "Entrar com Google". Você pode descomentar a linha `// await attemptAnonymousSignIn();` dentro do bloco `else` de `onAuthStateChanged` se quiser que ele tente o login anônimo automaticamente caso o usuário não esteja logado de outra forma.
-5.  **Funções `signInWithGoogle` e `signOut`:** Foram adicionadas para lidar com esses fluxos.
-6.  **Feedback Visual de "Guardado!":** A lógica para o feedback visual foi ligeiramente ajustada para tentar encontrar o elemento de feedback corretamente.
-7.  **Mensagens de Status e Erro:** O elemento `authStatusEl` fornecerá mais feedback sobre o status da autenticação e possíveis erros.
-
-**Para Usar Este Código:**
-
-1.  **Substitua o `firebaseConfig`** com os seus dados reais.
-2.  **Certifique-se de que as configurações no Console do Firebase estão corretas** (Autenticação Anônima e Google habilitadas, Regras do Firestore corretas, Domínio Autorizado).
-3.  Substitua o conteúdo do seu `index.html` atual por este código completo.
-4.  Envie para o seu repositório Git, e a Vercel (ou sua plataforma de hospedagem) fará o deploy.
-5.  Teste no seu site publicado, observando o console do desenvolvedor (F12) para quaisquer erros.
-
-Este código implementa o armazenamento do `userId` (usado no caminho do Firestore) e das mensagens das caixas de texto, além do estado dos checkboxes, usando o Firebase como backe
