@@ -372,12 +372,6 @@
                         unsubscribeFirestore = null;
                     }
                     loadAndApplyData({}); 
-                    
-                    // Tentativa de login anônimo como fallback se nenhum usuário estiver logado
-                    // Isso pode ser útil se você quiser que os dados sejam salvos mesmo sem login com Google,
-                    // mas eles ficarão vinculados a uma conta anônima.
-                    // Se quiser priorizar o login explícito com Google, mantenha comentado.
-                    /*
                     try {
                         console.log("Nenhum usuário logado. Tentando login anônimo...");
                         await signInAnonymously(auth);
@@ -385,7 +379,7 @@
                         console.error("Erro no login anônimo de fallback:", error);
                         authStatusEl.textContent = "Falha no login anônimo automático. Tente o login com Google.";
                     }
-                    */
+                    
                 }
             });
         }
